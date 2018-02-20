@@ -1,6 +1,7 @@
 import { h, app } from 'hyperapp'
 
-const url = 'https://api.nasa.gov/EPIC/api/natural?api_key=DEMO_KEY'
+const type = 'natural' // enhanced
+const url = `https://api.nasa.gov/EPIC/api/${type}?api_key=DEMO_KEY`
 
 const state = {
   capturesList: []
@@ -21,9 +22,10 @@ const renderMedia = (capture) => {
   // <img src={`https://epic.gsfc.nasa.gov/archive/natural/${date}2018/02/18/jpg/epic_1b_20180218003633.jpg`} />
   // <p>{capture.coords.centroid_coordinates.lat}, {capture.coords.centroid_coordinates.lon}</p>
 
+  // https://epic.gsfc.nasa.gov/archive/enhanced/2018/02/17/jpg/epic_RGB_20180217005515.jpg
   return (
-    <div className='image' style={{position: 'absolute'}}>
-      <img src={`https://epic.gsfc.nasa.gov/archive/natural/${date}/thumbs/${capture.image}.jpg`} />
+    <div className='image' style={{float: 'left'}}>
+      <img src={`https://epic.gsfc.nasa.gov/archive/${type}/${date}/jpg/${capture.image}.jpg`} />
     </div>
   )
 }
