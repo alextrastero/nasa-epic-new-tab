@@ -1,0 +1,17 @@
+{
+  "manifest_version": 2,
+  "name": "Nasa Epic New Tab",
+  "short_name": "Nasa Epic",
+  "version": "1.0.0",
+  "description": "Earth Polychromatic Imaging Camera (EPIC) new tab",
+  "author": "Alexander Odell <alextrastero@gmail.com>",
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "chrome_url_overrides" : {
+    "newtab": "index.html"
+  },
+  "icons": {
+    "16": "assets/icon16.png",
+    "48": "assets/icon48.png",
+    "128": "assets/icon128.png"
+  }
+}
