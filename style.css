@@ -8,6 +8,16 @@ body, html {
 .epic {
   height: 100vh;
   text-align: center;
+  -webkit-animation: rotating 400s linear infinite;
+}
+
+@-webkit-keyframes rotating {
+  from{
+    -webkit-transform: rotate(0deg);
+  }
+  to{
+    -webkit-transform: rotate(360deg);
+  }
 }
 
 .epic__img {

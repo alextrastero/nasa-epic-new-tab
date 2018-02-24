@@ -4,7 +4,9 @@
   "description": "Earth Polychromatic Imaging Camera (EPIC) new tab",
   "author": "Alexander Odell <alextrastero@gmail.com>",
   "scripts": {
-    "start": "parcel index.html"
+    "start": "parcel index.html",
+    "build": "NODE_ENV=production parcel build index.html --public-url ./ && npm run manifest",
+    "manifest": "cp manifest.json dist/"
   },
   "dependencies": {
     "parcel-bundler": "^1.6.1",

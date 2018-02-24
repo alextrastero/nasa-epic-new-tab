@@ -93,9 +93,7 @@ const renderMedia = (capturesList) => {
   })
 
   return (
-    <div className='epic'>
-      <img className='epic__img' src={urlList[0].url} />
-    </div>
+    <img className='epic__img' src={urlList[0].url} />
   )
 }
 
@@ -122,7 +120,9 @@ const view = (state, actions) => {
         </div>
         {state.freshImage && renderFreshImage()}
       </div>
-      {renderMedia(renderData)}
+      <div className='epic'>
+        {renderMedia(renderData)}
+      </div>
     </div>
   )
 }
