@@ -7,7 +7,7 @@
 import { h, app } from 'hyperapp'
 import './style.css'
 import epicSampleImage from './epic.jpg'
-import { setData, getData } from './chrome-storage'
+import localStorage from './chrome-storage'
 
 const type = 'natural' // enhanced
 const url = `https://api.nasa.gov/EPIC/api/${type}?api_key=DEMO_KEY`
@@ -15,24 +15,27 @@ const url = `https://api.nasa.gov/EPIC/api/${type}?api_key=DEMO_KEY`
 const state = {
   capturesList: undefined,
   freshImage: false,
-  lastCaptured: new Date().getDate() // this needs to be stored in localStorage
+  lastCaptured: undefined
 }
 const today = new Date().getDate()
 
+const trimData = (data) => {
+  const parsed = []
+  data.forEach((val) => {
+    parsed.push({
+      image: val.image,
+      date: val.date,
+      centroidCoordinates: val.centroid_coordinates
+    })
+  })
+  console.log(parsed)
+
+  return parsed
+}
+
 const actions = {
-  startApp: () => (state, actions) => {
-    actions.fetchImages()
-
-    // if (state.lastCaptured === today) {
-      // actions.fetchStoredImage()
-    // } else {
-      // actions.setCapturedDate()
-      // actions.fetchImage()
-    // }
-  },
-
   /*
-   * #fetchImages
+   * #startApp
    *
    * fetches chrome-storage for extension data
    * if empty set captured date to today and fetch new images from epic api
@@ -42,46 +45,36 @@ const actions = {
    * if data corrupt, dont update state
    *
    */
-  fetchImages: () => (state, actions) => {
-    getData()
-      .then((dunno) => { console.log('workded', dunno) })
-      .catch((err) =>  {
-        console.warn(err)
-        // const sampleImage = {
-          // image: epicSampleImage,
-          // coords: { centroid_coordinates: { lat: 'asd', lon: 'dsa' } }
-        // }
-        // actions.setImages({ new: false, data: [sampleImage] })
-      })
+  startApp: () => (state, actions) => {
+    localStorage.getData().then((data) => {
+      if (data) {
+        actions.setImages({ data: data.capturesList })
+      } else {
+        actions.fetchImage()
+      }
+    }).catch((err) => console.warn(err))
   },
 
-  /*
-   * #fetchStoredImage
-   *
-   * Fetch data from chrome.storage
-   * If no data present ??
-   */
-  fetchStoredImage: () => (state, actions) => {
-    getData()
-      .then((dunno) => {
-        console.log('workded', dunno)
-      })
-      .catch((err) =>  {
-        console.warn(err)
-        const sampleImage = {
-          image: epicSampleImage,
-          coords: { centroid_coordinates: { lat: 'asd', lon: 'dsa' } }
-        }
-        actions.setImages({ new: false, data: [sampleImage] })
-      })
-  },
   fetchImage: () => (state, actions) => {
-    fetch(url)
+    window.fetch(url)
       .then(res => res.json())
-      .then(data => actions.setImages({ freshImage: true, data }))
+      .then(data => actions.setImages({ data: trimData(data), freshImage: true }))
   },
-  setCapturedDate: (today) => state => ({ lastCaptured: today }),
-  setImages: ({ data, freshImage }) => state => ({ capturesList: data, freshImage: true })
+
+  setImages: ({ data, freshImage }) => state => {
+    const capturesList = data
+    const lastCaptured = new Date().getDate()
+
+    if (freshImage) {
+      const toBeStored = { capturesList, lastCaptured }
+
+      console.log('storing data why?')
+      localStorage.setData(toBeStored).catch((err) => console.warn(err))
+    }
+
+    console.log('setImages', freshImage, lastCaptured)
+    return { capturesList, lastCaptured, freshImage }
+  }
 }
 
 const renderMedia = (capturesList) => {
@@ -92,24 +85,22 @@ const renderMedia = (capturesList) => {
     return { url: `https://epic.gsfc.nasa.gov/archive/${type}/${parseDate(capture.date)}/jpg/${capture.image}.jpg` }
   })
 
-  return (
-    <img className='epic__img' src={urlList[0].url} />
-  )
+  return <img className='epic__img' src={urlList[0].url} />
 }
 
 const getCoords = (capturesList) => {
-  const { lat, lon } = capturesList[0].coords.centroid_coordinates
+  const { lat, lon } = capturesList[0].centroidCoordinates
   return `${lat} ${lon}`
 }
 
-const renderFreshImage = () => ( <a title='new image' className='fresh-image' /> )
+const renderFreshImage = () => <a title='new image' className='fresh-image' />
 
 const view = (state, actions) => {
   // render sample image until new image has arrived
   const renderData = state.capturesList || [{
-    // {state.capturesList.length && renderMedia(state.capturesList)}
     image: epicSampleImage
   }]
+
 
   return (
     <div className='container' oncreate={actions.startApp}>
