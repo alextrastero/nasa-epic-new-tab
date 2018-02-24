@@ -1,0 +1,46 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  background: black;
+  font-family: sans-serif;
+}
+
+.epic {
+  height: 100vh;
+  text-align: center;
+}
+
+.epic__img {
+  height: 100%;
+}
+
+.hero {
+  position: absolute;
+  width: 100%;
+}
+
+.hero-message {
+  font-size: 1em;
+  color: #0e0e0e;
+  margin: 1rem;
+  font-weight: normal;
+  transition: color 2s ease;
+}
+
+.hero-message p {
+  margin: .2rem;
+}
+
+.hero-message:hover {
+  color: #2f2f2f;
+}
+
+.fresh-image {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  width: 40px;
+  height: 40px;
+  display: block;
+  background: url('./earth.svg') no-repeat center;
+}
