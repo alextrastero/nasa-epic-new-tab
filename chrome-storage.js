@@ -1,3 +1,4 @@
+const DEV = process.env.NODE_ENV !== 'production'
 const KEY = 'nasa-epic-new-tab'
 
 /*
@@ -10,26 +11,24 @@ const KEY = 'nasa-epic-new-tab'
  *
  */
 
-const inLocalhost = (reject) => {
-  if (typeof window.chrome.storage === 'undefined') {
-    reject('Can\'t access chrome storage, are you on localhost?')
-  }
-}
-
-const setData = (data) => {
+const getData = () => {
   return new Promise((resolve, reject) => {
-    inLocalhost(reject)
-    window.chrome.storage.sync.set({ [KEY]: data }, () => {
-      console.log(`${KEY}: stored ${data.capturesList.length} items`)
+    if (DEV) {
+      resolve(JSON.parse(window.localStorage.getItem([KEY])))
+    }
+    window.chrome.storage.sync.get([KEY], (data) => {
+      resolve(data[KEY])
     })
   })
 }
 
-const getData = () => {
+const setData = (data) => {
   return new Promise((resolve, reject) => {
-    inLocalhost(reject)
-    window.chrome.storage.sync.get([KEY], (data) => {
-      resolve(data[KEY])
+    if (DEV) {
+      resolve(window.localStorage.setItem([KEY], JSON.stringify(data)))
+    }
+    window.chrome.storage.sync.set({ [KEY]: JSON.stringify(data) }, () => {
+      console.log(`${KEY}: stored ${data.capturesList.length} items`)
     })
   })
 }

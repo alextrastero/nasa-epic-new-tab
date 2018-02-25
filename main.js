@@ -8,6 +8,7 @@ import { h, app } from 'hyperapp'
 import './style.css'
 import epicSampleImage from './epic.jpg'
 import localStorage from './chrome-storage'
+import { trimmer } from './helpers'
 
 const type = 'natural' // enhanced
 const url = `https://api.nasa.gov/EPIC/api/${type}?api_key=DEMO_KEY`
@@ -17,22 +18,11 @@ const state = {
   freshImage: false,
   lastCaptured: undefined
 }
-const today = new Date().getDate()
 
-const trimData = (data) => {
-  const parsed = []
-  data.forEach((val) => {
-    parsed.push({
-      image: val.image,
-      date: val.date,
-      centroidCoordinates: val.centroid_coordinates
-    })
-  })
-  console.log(parsed)
+// Stop fetchImageTimeout if user is leaving
+window.onbeforeunload = () => { window.clearTimeout(fetchImageTimeout) }
 
-  return parsed
-}
-
+let fetchImageTimeout
 const actions = {
   /*
    * #startApp
@@ -48,7 +38,7 @@ const actions = {
   startApp: () => (state, actions) => {
     localStorage.getData().then((data) => {
       if (data) {
-        actions.setImages({ data: data.capturesList })
+        actions.setImages({ data })
       } else {
         actions.fetchImage()
       }
@@ -56,23 +46,26 @@ const actions = {
   },
 
   fetchImage: () => (state, actions) => {
-    window.fetch(url)
-      .then(res => res.json())
-      .then(data => actions.setImages({ data: trimData(data), freshImage: true }))
+    window.clearTimeout(fetchImageTimeout)
+    if (process.env.NODE_ENV !== 'production') return
+
+    fetchImageTimeout = window.setTimeout(() => {
+      window.fetch(url)
+        .then(res => res.json())
+        .then(data => actions.setImages({ data: { capturesList: trimmer(data) }, freshImage: true }))
+    }, 5000) // only fetch new image if user is more than 5sec on tab
   },
 
   setImages: ({ data, freshImage }) => state => {
-    const capturesList = data
+    const { capturesList } = data
     const lastCaptured = new Date().getDate()
 
     if (freshImage) {
       const toBeStored = { capturesList, lastCaptured }
 
-      console.log('storing data why?')
       localStorage.setData(toBeStored).catch((err) => console.warn(err))
     }
 
-    console.log('setImages', freshImage, lastCaptured)
     return { capturesList, lastCaptured, freshImage }
   }
 }
@@ -100,7 +93,6 @@ const view = (state, actions) => {
   const renderData = state.capturesList || [{
     image: epicSampleImage
   }]
-
 
   return (
     <div className='container' oncreate={actions.startApp}>

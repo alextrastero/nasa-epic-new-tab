@@ -8,7 +8,7 @@ body, html {
 .epic {
   height: 100vh;
   text-align: center;
-  -webkit-animation: rotating 400s linear infinite;
+  /* -webkit-animation: rotating 400s linear infinite; */
 }
 
 @-webkit-keyframes rotating {
@@ -31,7 +31,8 @@ body, html {
 
 .hero-message {
   font-size: 1em;
-  color: #0e0e0e;
+  /* color: #0e0e0e; */
+  color: white;
   margin: 1rem;
   font-weight: normal;
   transition: color 2s ease;
